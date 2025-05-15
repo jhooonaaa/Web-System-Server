@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 
-const adminCode = "bembang";  
+const adminCode = "admin123";  
 
 const saltRounds = 10;
 
