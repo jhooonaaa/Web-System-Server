@@ -182,12 +182,25 @@ app.get('/borrowed-books/:username', async (req, res) => {
   const { username } = req.params;
 
   try {
+    // First get the user_id from username
+    const userRes = await db.query(
+      `SELECT user_id FROM users WHERE username = $1`,
+      [username]
+    );
+
+    if (userRes.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+
+    const user_id = userRes.rows[0].user_id;
+
+    // Then get borrowed books by user_id
     const borrowedBooks = await db.query(
       `SELECT b.title, bb.book_id, bb.borrow_id, bb.borrow_date, bb.return_date, bb.is_returned, bb.quantity
        FROM borrowed_books bb
        JOIN books b ON bb.book_id = b.book_id
-       WHERE bb.username = $1`,
-      [username]
+       WHERE bb.user_id = $1`,
+      [user_id]
     );
 
     res.json({ success: true, borrowedBooks: borrowedBooks.rows });
@@ -196,6 +209,7 @@ app.get('/borrowed-books/:username', async (req, res) => {
     res.status(500).json({ success: false, error: 'Database error' });
   }
 });
+
 
 
 
